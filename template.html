@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipla · Learner Persona Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--white:#fff;
+  --dark:#1a2340;--mid:#3d4f6e;--muted:#7589a8;--border:#dce4ef;
+  --radius:14px;--shadow:0 4px 24px rgba(26,35,64,.09);--shadow-lg:0 8px 40px rgba(26,35,64,.14);
+}
+body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--dark);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--dark);padding:0 32px;display:flex;align-items:center;height:58px;gap:16px;position:sticky;top:0;z-index:300;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.hdr-logo{font-family:'Fraunces',serif;font-size:20px;color:#fff}
+.hdr-logo span{color:#60a5fa}
+.hdr-div{width:1px;height:24px;background:rgba(255,255,255,.15)}
+.hdr-sub{font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.04em;text-transform:uppercase}
+.hdr-badge{margin-left:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);font-size:12px;padding:4px 14px;border-radius:20px}
+.hdr-badge strong{color:#60a5fa}
+
+/* ── FILTER BAR ── */
+.fbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(26,35,64,.06);position:sticky;top:58px;z-index:200}
+.flabel{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.fsep{width:1px;height:20px;background:var(--border);margin:0 4px}
+select{background:var(--bg);border:1px solid var(--border);color:var(--dark);border-radius:8px;padding:7px 30px 7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237589a8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;transition:border-color .2s,box-shadow .2s;max-width:220px}
+select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.rbtn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:500;transition:all .2s}
+.rbtn:hover{border-color:#ef4444;color:#ef4444;background:#fff5f5}
+
+/* ── SECTION WRAPPER ── */
+.section{padding:24px 32px 0}
+.section-title{font-family:'Fraunces',serif;font-size:22px;color:var(--dark);margin-bottom:4px}
+.section-sub{font-size:12px;color:var(--muted);margin-bottom:20px;letter-spacing:.02em}
+.section-divider{height:1px;background:var(--border);margin:32px 32px 0}
+
+/* ── STAT BANNER ── */
+.stat-banner{display:flex;gap:0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px}
+.stat-item{flex:1;padding:18px 24px;border-right:1px solid var(--border);text-align:center}
+.stat-item:last-child{border-right:none}
+.stat-val{font-family:'Fraunces',serif;font-size:28px;font-weight:700;display:block}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-top:2px;display:block}
+
+/* ── PERSONA TYPE CARDS (Section 2) ── */
+.persona-types-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:8px}
+@media(max-width:900px){.persona-types-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.persona-types-grid{grid-template-columns:1fr 1fr}}
+
+.ptype-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;cursor:pointer;border:2px solid transparent;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.ptype-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--pt-color,#3b82f6)}
+.ptype-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.ptype-card.active{border-color:var(--pt-color,#3b82f6);box-shadow:0 0 0 3px color-mix(in srgb, var(--pt-color,#3b82f6) 15%, transparent)}
+
+.ptype-emoji{font-size:28px;margin-bottom:8px;display:block}
+.ptype-name{font-family:'Fraunces',serif;font-size:15px;color:var(--dark);margin-bottom:4px}
+.ptype-tagline{font-size:10.5px;color:var(--muted);line-height:1.4;margin-bottom:12px}
+
+.ptype-bar-wrap{background:#eef2f8;border-radius:4px;height:6px;margin-bottom:6px;overflow:hidden}
+.ptype-bar{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.ptype-pct{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--pt-color,#3b82f6)}
+.ptype-count{font-size:10px;color:var(--muted);font-weight:600}
+
+/* ── INSIGHT SECTION (Section 3) ── */
+.insight-card{background:var(--dark);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:28px 32px;color:#fff;position:relative;overflow:hidden}
+.insight-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(96,165,250,.08)}
+.insight-card::after{content:'';position:absolute;bottom:-60px;left:-20px;width:220px;height:220px;border-radius:50%;background:rgba(96,165,250,.05)}
+.insight-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.insight-icon{font-size:20px;background:rgba(96,165,250,.15);border-radius:10px;padding:8px 10px}
+.insight-title{font-family:'Fraunces',serif;font-size:18px;color:#fff}
+.insight-subtitle{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.05em;text-transform:uppercase}
+.insight-blend{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.blend-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,.8)}
+.blend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.blend-pct{font-weight:700;color:#60a5fa}
+.insight-paras{display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.insight-para{background:rgba(255,255,255,.05);border-left:3px solid #60a5fa;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.7}
+.insight-para:nth-child(2){border-left-color:#e8c96b}
+.insight-para:nth-child(3){border-left-color:#4ade80}
+.insight-para:nth-child(4){border-left-color:#c084fc}
+.insight-para:nth-child(5){border-left-color:#f87171}
+.insight-para:nth-child(6){border-left-color:#60a5fa}
+
+/* ── PERSONA CARD (Section 4) ── */
+.persona-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);max-width:100%;border-top:4px solid var(--accent-color,#3b82f6);animation:slideIn .35s cubic-bezier(.22,1,.36,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.card-top{display:grid;grid-template-columns:220px 1fr;overflow:hidden}
+.card-left{display:flex;flex-direction:column}
+.photo-wrap{height:180px;overflow:hidden;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;font-size:80px}
+.photo-overlay{position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(to top,#fff,transparent)}
+.card-identity{padding:0 16px 16px;flex:1}
+.card-name{font-family:'Fraunces',serif;font-size:18px;color:var(--dark);margin:6px 0 4px;line-height:1.2}
+.card-role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:10px;color:#fff}
+.info-row{display:flex;align-items:baseline;gap:6px;margin-bottom:5px}
+.info-key{font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;min-width:72px}
+.info-val{font-size:12px;font-weight:700;color:var(--accent-color,#3b82f6)}
+
+.card-right{border-left:1px solid var(--border);display:flex;flex-direction:column}
+.about-sec{padding:16px 20px;border-bottom:1px solid var(--border);flex:1}
+.sec-hdr{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.accent-line{display:inline-block;width:18px;height:3px;border-radius:2px;background:var(--accent-color,#3b82f6)}
+.about-text{font-size:12px;color:var(--mid);line-height:1.65}
+.about-focus{margin-top:8px;font-style:italic;color:var(--muted)}
+
+.lp-header{text-align:center;font-size:12px;font-weight:700;color:#fff;padding:7px 0;letter-spacing:.04em;background:var(--accent-color,#3b82f6)}
+.lp-subheads{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:#f8fafc;border-top:1px solid var(--border)}
+.lp-sh{font-size:10px;font-weight:600;color:var(--muted);text-align:center;padding:5px 6px;border-right:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+.lp-sh:last-child{border-right:none}
+.lp-cols{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:1px solid var(--border)}
+.lp-col{text-align:center;padding:8px 6px;border-right:1px solid var(--border)}
+.lp-col:last-child{border-right:none}
+.lp-val{font-size:11.5px;font-weight:700;color:var(--accent-color,#3b82f6)}
+
+.attitude-row{border-top:1px solid var(--border);display:flex;align-items:stretch}
+.att-lbl{background:#f8fafc;border-right:1px solid var(--border);padding:10px 12px;font-size:11px;font-weight:700;color:var(--dark);min-width:110px;display:flex;align-items:center;line-height:1.3}
+.att-txt{padding:10px 14px;font-size:12px;color:var(--mid);font-style:italic;line-height:1.6;flex:1;background:#fffbf0}
+
+.card-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:2px solid var(--border);overflow:hidden}
+.bc{padding:16px 18px;border-right:1px solid var(--border)}
+.bc:last-child{border-right:none}
+.bc-title{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--accent-color,#3b82f6);display:inline-block}
+.blist{list-style:none}
+.blist li{font-size:12px;color:var(--mid);padding:4px 0 4px 14px;position:relative;line-height:1.45}
+.blist li::before{content:'';position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%;background:var(--accent-color,#3b82f6)}
+.blist li.dim{color:var(--muted)}
+
+.trainer-sec{background:#fafbff;border-top:2px solid var(--border);padding:16px 20px}
+.trainer-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.trainer-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tip{background:#fff;border:1px solid var(--border);border-left:3px solid var(--accent-color,#3b82f6);border-radius:8px;padding:10px 12px}
+.tip-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-color,#3b82f6);margin-bottom:5px}
+.tip-text{font-size:11px;color:var(--mid);line-height:1.55}
+
+.stats-footer{border-top:1px solid var(--border);padding:10px 20px;display:flex;gap:20px;align-items:center;background:#f8fafc;flex-wrap:wrap}
+.sf-item{display:flex;align-items:baseline;gap:5px}
+.sf-val{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--accent-color,#3b82f6)}
+.sf-lbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.sf-sep{width:1px;height:20px;background:var(--border)}
+.ep-badges{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.ep-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em}
+
+/* ── ANALYTICS EXPANDER ── */
+.analytics-toggle{border-top:1px solid var(--border)}
+.atbtn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:#f0f4f8;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;transition:background .15s;border-radius:0 0 var(--radius) var(--radius)}
+.atbtn:hover{background:#e4eaf4}
+.atbtn.open{border-radius:0}
+.at-left{display:flex;align-items:center;gap:10px}
+.at-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-color,#3b82f6);flex-shrink:0}
+.at-arrow{font-size:16px;color:var(--muted);transition:transform .3s ease;display:inline-block}
+.atbtn.open .at-arrow{transform:rotate(180deg)}
+
+.analytics-panel{overflow:hidden;max-height:0;transition:max-height .6s cubic-bezier(.4,0,.2,1);border-radius:0 0 var(--radius) var(--radius);background:#151b2e}
+.analytics-panel.open{max-height:2400px}
+.a-inner{padding:24px 24px 28px}
+.graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.graph-card{background:#1e2540;border:1px solid #2a3356;border-radius:12px;padding:18px}
+.graph-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.gdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.g-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.g-row:last-child{margin-bottom:0}
+.g-num{font-size:11px;color:#4a5880;width:16px;flex-shrink:0;text-align:center}
+.g-icon{font-size:13px;width:18px;flex-shrink:0;text-align:center}
+.g-label{font-size:11.5px;color:#c5cde8;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-bar-wrap{width:120px;height:7px;background:#2a3356;border-radius:4px;overflow:hidden;flex-shrink:0}
+.g-bar{height:100%;border-radius:4px}
+.g-suffix{font-size:10.5px;color:#6270a0;width:44px;text-align:right;flex-shrink:0;font-weight:600}
+
+/* ── NO MATCH ── */
+.no-match{text-align:center;padding:60px 20px;color:var(--muted)}
+.no-match-icon{font-size:48px;margin-bottom:12px}
+
+/* ── EMPTY STATE ── */
+.empty-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:48px 32px;text-align:center;color:var(--muted)}
+.empty-card .em-icon{font-size:40px;margin-bottom:12px}
+.empty-card .em-text{font-size:14px;font-weight:600;color:var(--mid);margin-bottom:6px}
+.empty-card .em-sub{font-size:12px}
+
+@media(max-width:720px){
+  .section{padding:16px 16px 0}
+  .card-top{grid-template-columns:1fr}
+  .card-right{border-left:none;border-top:1px solid var(--border)}
+  .card-bottom{grid-template-columns:1fr}
+  .bc{border-right:none;border-bottom:1px solid var(--border)}
+  .tips-grid{grid-template-columns:1fr 1fr}
+  .graph-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">Cipla<span>·</span>L&D</div>
+  <div class="hdr-div"></div>
+  <div class="hdr-sub">Learner Persona Dashboard</div>
+  <div class="hdr-badge">Total: <strong id="hdrN">—</strong> learners</div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <span class="flabel">Filter by</span>
+  <select id="fCluster"><option value="">All Clusters</option></select>
+  <select id="fBuDiv"><option value="">All BU / Divisions</option></select>
+  <div class="fsep"></div>
+  <select id="fRole"><option value="">All Roles</option></select>
+  <select id="fMetro"><option value="">Metro + Non-Metro</option></select>
+  <button class="rbtn" onclick="resetFilters()">↺ Reset</button>
+</div>
+
+<!-- SECTION 1 DIVIDER -->
+<div class="section" style="padding-top:28px">
+  <div class="section-title">Overview</div>
+  <div class="section-sub" id="overviewSub">Loading data...</div>
+  <div class="stat-banner" id="statBanner"></div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 2: PERSONA TYPES -->
+<div class="section" style="padding-top:28px">
+  <div class="section-title">Learner Persona Types</div>
+  <div class="section-sub">Click a persona type to explore their profile and see how the insights change</div>
+  <div class="persona-types-grid" id="ptypeGrid"></div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 3: TRAINER INSIGHT -->
+<div class="section" style="padding-top:28px">
+  <div class="section-title">Trainer Insight</div>
+  <div class="section-sub">Proportionally weighted guidance based on the persona mix in current view</div>
+  <div id="insightArea"></div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 4: PERSONA CARD -->
+<div class="section" style="padding-top:28px;padding-bottom:48px">
+  <div class="section-title">Learner Profile Card</div>
+  <div class="section-sub" id="cardSub">Select a role and persona type above to view the detailed profile</div>
+  <div id="personaCardArea"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA — injected by Python
+// ═══════════════════════════════════════════════
+const DATA = __CIPLA_DATA__;
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const state = {
+  cluster: '', buDiv: '', role: '', metro: '',
+  personaType: '',
+};
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init() {
+  populateFilters();
+  addFilterListeners();
+  render();
+}
+
+function populateFilters() {
+  populate('fCluster', DATA.clusters, 'All Clusters');
+  populate('fBuDiv', DATA.bu_divisions, 'All BU / Divisions');
+  populate('fRole', DATA.roles.map(r => ({ val: r, label: DATA.role_display[r] || r })), 'All Roles');
+  populate('fMetro', DATA.metros, 'Metro + Non-Metro');
+}
+
+function populate(id, items, placeholder) {
+  var sel = document.getElementById(id);
+  sel.innerHTML = '<option value="">' + placeholder + '</option>';
+  items.forEach(function(item) {
+    var opt = document.createElement('option');
+    if (typeof item === 'object') { opt.value = item.val; opt.textContent = item.label; }
+    else { opt.value = item; opt.textContent = item; }
+    sel.appendChild(opt);
+  });
+}
+
+function addFilterListeners() {
+  document.getElementById('fCluster').addEventListener('change', function(e) { state.cluster = e.target.value; render(); });
+  document.getElementById('fBuDiv').addEventListener('change', function(e) { state.buDiv = e.target.value; render(); });
+  document.getElementById('fRole').addEventListener('change', function(e) { state.role = e.target.value; render(); });
+  document.getElementById('fMetro').addEventListener('change', function(e) { state.metro = e.target.value; render(); });
+}
+
+function resetFilters() {
+  state.cluster = ''; state.buDiv = ''; state.role = ''; state.metro = ''; state.personaType = '';
+  ['fCluster','fBuDiv','fRole','fMetro'].forEach(function(id){ document.getElementById(id).value = ''; });
+  render();
+}
+
+// ═══════════════════════════════════════════════
+// FILTER ROWS
+// ═══════════════════════════════════════════════
+function getFilteredRows() {
+  return DATA.rows.filter(function(row) {
+    if (state.cluster && row.cluster !== state.cluster) return false;
+    if (state.buDiv && row.bu_division !== state.buDiv) return false;
+    if (state.role && row.role !== state.role) return false;
+    if (state.metro && row.metro !== state.metro) return false;
+    return true;
+  });
+}
+
+function getSegmentKey() {
+  if (state.cluster && state.role) return 'cluster::' + state.cluster + '::role::' + state.role;
+  if (state.role) return 'role::' + state.role;
+  if (state.cluster) return 'cluster::' + state.cluster;
+  if (state.buDiv) return 'bu::' + state.buDiv;
+  return 'overall';
+}
+
+function getSegmentData() {
+  var key = getSegmentKey();
+  return DATA.precomputed[key] || DATA.precomputed['overall'];
+}
+
+// ═══════════════════════════════════════════════
+// PERSONA DISTRIBUTION FROM ROWS
+// ═══════════════════════════════════════════════
+function computePersonaDist(rows) {
+  var counts = {};
+  Object.keys(DATA.persona_types).forEach(function(p){ counts[p] = 0; });
+  rows.forEach(function(r){ if (counts[r.persona] !== undefined) counts[r.persona]++; });
+  var total = rows.length;
+  var dist = Object.keys(DATA.persona_types).map(function(name) {
+    var cnt = counts[name];
+    var pt = DATA.persona_types[name];
+    return { name: name, count: cnt, pct: total > 0 ? Math.round(cnt/total*100) : 0,
+             emoji: pt.emoji, color: pt.color, tagline: pt.tagline, description: pt.description };
+  });
+  dist.sort(function(a,b){ return b.pct - a.pct; });
+  return dist;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  var rows = getFilteredRows();
+  var n = rows.length;
+  var seg = getSegmentData();
+  var personaDist = computePersonaDist(rows);
+
+  // Header count
+  document.getElementById('hdrN').textContent = n.toLocaleString();
+
+  // Section 1: stats
+  renderStats(rows, n, personaDist);
+
+  // Section 2: persona type cards
+  renderPersonaTypes(personaDist, n);
+
+  // Section 3: insight
+  renderInsight(seg, personaDist);
+
+  // Section 4: persona card
+  renderPersonaCard();
+}
+
+// ─── SECTION 1: STATS ───
+function renderStats(rows, n, personaDist) {
+  var role = state.role ? (DATA.role_display[state.role] || state.role) : 'All Roles';
+  var cluster = state.cluster || 'All Clusters';
+  var topPersona = personaDist.length > 0 ? personaDist[0] : null;
+
+  var metroCount = rows.filter(function(r){ return r.metro === 'Metro'; }).length;
+  var metroPct = n > 0 ? Math.round(metroCount/n*100) : 0;
+
+  document.getElementById('overviewSub').textContent =
+    'Showing ' + n.toLocaleString() + ' learners · ' + cluster + ' · ' + role;
+
+  var epColors = { HELP:'#ef4444', HEHP:'#22c55e', LELP:'#f59e0b', LEHP:'#3b82f6' };
+  var helpCount = rows.filter(function(r){ return r.empStatus === 'HELP'; }).length;
+  var hehpCount = rows.filter(function(r){ return r.empStatus === 'HEHP'; }).length;
+
+  document.getElementById('statBanner').innerHTML =
+    stat(n.toLocaleString(), 'Total Learners', '#0d6efd') +
+    stat(metroPct + '%', 'Metro-based', '#7c3aed') +
+    stat(topPersona ? topPersona.pct + '%' : '—', 'Top Persona: ' + (topPersona ? topPersona.name : '—'), topPersona ? topPersona.color : '#3b82f6') +
+    stat(n > 0 ? Math.round(helpCount/n*100) + '%' : '—', 'High Effort, Low Perf', '#ef4444') +
+    stat(n > 0 ? Math.round(hehpCount/n*100) + '%' : '—', 'High Effort, High Perf', '#22c55e');
+}
+
+function stat(val, lbl, color) {
+  return '<div class="stat-item"><span class="stat-val" style="color:' + color + '">' + val + '</span><span class="stat-lbl">' + lbl + '</span></div>';
+}
+
+// ─── SECTION 2: PERSONA TYPES ───
+function renderPersonaTypes(personaDist, total) {
+  var html = '';
+  var maxPct = personaDist.length > 0 ? personaDist[0].pct : 1;
+  personaDist.forEach(function(pt) {
+    var isActive = state.personaType === pt.name;
+    var barW = maxPct > 0 ? Math.round(pt.pct / maxPct * 100) : 0;
+    html += '<div class="ptype-card' + (isActive ? ' active' : '') + '" ' +
+      'style="--pt-color:' + pt.color + '" ' +
+      'onclick="selectPersonaType(\'' + pt.name + '\')">' +
+      '<span class="ptype-emoji">' + pt.emoji + '</span>' +
+      '<div class="ptype-name">' + pt.name + '</div>' +
+      '<div class="ptype-tagline">' + pt.tagline + '</div>' +
+      '<div class="ptype-bar-wrap"><div class="ptype-bar" style="width:' + barW + '%;background:' + pt.color + '"></div></div>' +
+      '<div style="display:flex;align-items:baseline;gap:6px;margin-top:4px">' +
+        '<span class="ptype-pct" style="color:' + pt.color + '">' + pt.pct + '%</span>' +
+        '<span class="ptype-count">· ' + pt.count.toLocaleString() + ' learners</span>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('ptypeGrid').innerHTML = html;
+}
+
+function selectPersonaType(name) {
+  state.personaType = state.personaType === name ? '' : name;
+  render();
+}
+
+// ─── SECTION 3: INSIGHT ───
+function renderInsight(seg, personaDist) {
+  var area = document.getElementById('insightArea');
+  if (!seg || !seg.insight) {
+    area.innerHTML = '<div class="empty-card"><div class="em-icon">💡</div><div class="em-text">No insight data available</div><div class="em-sub">Try a different filter combination</div></div>';
+    return;
+  }
+
+  var top3 = personaDist.slice(0, 3);
+  var blendHTML = top3.map(function(pt) {
+    return '<div class="blend-badge"><span class="blend-dot" style="background:' + pt.color + '"></span>' +
+      pt.emoji + ' ' + pt.name + ' <span class="blend-pct">' + pt.pct + '%</span></div>';
+  }).join('');
+
+  var parasHTML = seg.insight.paragraphs.map(function(p) {
+    return '<div class="insight-para">' + p + '</div>';
+  }).join('');
+
+  area.innerHTML = '<div class="insight-card">' +
+    '<div class="insight-header">' +
+      '<div class="insight-icon">🎓</div>' +
+      '<div><div class="insight-title">Learning Journey Design Guide</div>' +
+        '<div class="insight-subtitle">For Trainers & L&D Planners</div></div>' +
+    '</div>' +
+    '<div class="insight-blend">' + blendHTML + '</div>' +
+    '<div class="insight-paras">' + parasHTML + '</div>' +
+  '</div>';
+}
+
+// ─── SECTION 4: PERSONA CARD ───
+function renderPersonaCard() {
+  var area = document.getElementById('personaCardArea');
+  var sub = document.getElementById('cardSub');
+
+  if (!state.role && !state.personaType) {
+    area.innerHTML = '<div class="empty-card"><div class="em-icon">👆</div><div class="em-text">Select a Role and Persona Type to view the detailed profile</div><div class="em-sub">Use the Role filter above and click a persona card in Section 2</div></div>';
+    sub.textContent = 'Select a role filter and persona type above';
+    return;
+  }
+
+  var role = state.role || 'TM';
+  var ptype = state.personaType || 'Pragmatist';
+  var key = role + '::' + ptype;
+  var card = DATA.persona_cards[key];
+
+  if (!card || card.n === 0) {
+    area.innerHTML = '<div class="empty-card"><div class="em-icon">🔍</div><div class="em-text">Not enough data for ' + (DATA.role_display[role] || role) + ' · ' + ptype + '</div><div class="em-sub">Try a different role or persona type combination</div></div>';
+    sub.textContent = 'No data for this combination';
+    return;
+  }
+
+  sub.textContent = 'Showing ' + card.n.toLocaleString() + ' learners · ' + card.role_display + ' · ' + ptype;
+
+  var accent = card.persona_color;
+  var esColors = { HELP:'#ef4444', HEHP:'#22c55e', LELP:'#f59e0b', LEHP:'#3b82f6' };
+  var esBg    = { HELP:'#fef2f2', HEHP:'#f0fdf4', LELP:'#fffbeb', LEHP:'#eff6ff' };
+
+  var esEntries = Object.entries(card.es_dist || {}).filter(function(e){ return e[1] > 0; });
+  esEntries.sort(function(a,b){ return b[1]-a[1]; });
+  var esTotal = esEntries.reduce(function(a,e){ return a+e[1]; }, 0);
+  var epBadges = esEntries.map(function(e) {
+    var pct = esTotal > 0 ? Math.round(e[1]/esTotal*100) : 0;
+    return '<span class="ep-badge" style="background:' + (esBg[e[0]]||'#f3f4f6') + ';color:' + (esColors[e[0]]||'#666') + '">' + e[0] + ' ' + pct + '%</span>';
+  }).join('');
+
+  var needsHTML  = (card.topNeeds || []).slice(0,3).map(function(n){ return '<li>' + n + '</li>'; }).join('') || '<li>—</li>';
+  var motivHTML  = (card.motivations || []).map(function(m,i){ return '<li' + (i>=3?' class="dim"':'') + '>' + m + '</li>'; }).join('') || '<li>—</li>';
+  var challHTML  = (card.challenges || []).map(function(c){ return '<li>' + c + '</li>'; }).join('') || '<li>—</li>';
+  var partHTML   = (card.participation || []).map(function(p){ return '<li>' + p + '</li>'; }).join('') || '<li>—</li>';
+
+  var tips = buildTips(card);
+  var tipsHTML = tips.map(function(t) {
+    return '<div class="tip"><div class="tip-label">→ ' + t.label + '</div><div class="tip-text">' + t.text + '</div></div>';
+  }).join('');
+
+  area.innerHTML =
+    '<div class="persona-card" style="--accent-color:' + accent + '">' +
+
+      '<div class="card-top">' +
+        '<div class="card-left">' +
+          '<div class="photo-wrap" style="background:linear-gradient(135deg,' + accent + '22,' + accent + '44)">' +
+            card.role_emoji +
+            '<div class="photo-overlay"></div>' +
+          '</div>' +
+          '<div class="card-identity">' +
+            '<div class="card-name">' + ptype + ' ' + card.persona_emoji + '</div>' +
+            '<div class="card-role-badge" style="background:' + card.role_color + '">' + card.role_display + '</div>' +
+            '<div class="info-row"><span class="info-key">Profile :</span><span class="info-val">' + ptype + '</span></div>' +
+            '<div class="info-row"><span class="info-key">Education :</span><span class="info-val">' + card.education + '</span></div>' +
+            '<div class="info-row"><span class="info-key">Experience :</span><span class="info-val">' + card.experience + '</span></div>' +
+            '<div class="info-row"><span class="info-key">Location :</span><span class="info-val">' + card.location + '</span></div>' +
+            '<div class="info-row"><span class="info-key">Frequency :</span><span class="info-val">' + card.frequency + '</span></div>' +
+            '<div class="info-row"><span class="info-key">Learners :</span><span class="info-val">' + card.n.toLocaleString() + '</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-right">' +
+          '<div class="about-sec">' +
+            '<div class="sec-hdr"><span class="accent-line"></span> About This Learner</div>' +
+            '<div class="about-text">' + card.about + '<div class="about-focus">Current focus: ' + card.focus + '</div></div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="lp-header">Learning Preference</div>' +
+            '<div class="lp-subheads"><div class="lp-sh">Top Format</div><div class="lp-sh">Duration</div><div class="lp-sh">Category</div><div class="lp-sh">Time / Week</div></div>' +
+            '<div class="lp-cols">' +
+              '<div class="lp-col"><div class="lp-val">' + (card.learnPref.format||'—') + '</div></div>' +
+              '<div class="lp-col"><div class="lp-val">' + (card.learnPref.duration||'—') + '</div></div>' +
+              '<div class="lp-col"><div class="lp-val">' + (card.learnPref.category||'—') + '</div></div>' +
+              '<div class="lp-col"><div class="lp-val">' + (card.learnPref.time||'—') + '</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="attitude-row">' +
+            '<div class="att-lbl">Attitude toward<br>Digital Learning</div>' +
+            '<div class="att-txt">' + card.attitude + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card-bottom">' +
+        '<div class="bc"><div class="bc-title">Top Development Needs</div><ul class="blist">' + needsHTML + '</ul></div>' +
+        '<div class="bc"><div class="bc-title">What Motivates Them</div><ul class="blist">' + motivHTML + '</ul></div>' +
+        '<div class="bc"><div class="bc-title">Learning Challenges</div><ul class="blist">' + challHTML + '</ul></div>' +
+      '</div>' +
+      '<div class="card-bottom" style="border-top:1px solid var(--border)">' +
+        '<div class="bc" style="grid-column:1/-1"><div class="bc-title">What Increases Participation</div><ul class="blist">' + partHTML + '</ul></div>' +
+      '</div>' +
+
+      '<div class="trainer-sec"><div class="trainer-title">🎓 Trainer Planning Guide</div><div class="tips-grid">' + tipsHTML + '</div></div>' +
+
+      '<div class="stats-footer">' +
+        '<div class="sf-item"><span class="sf-val">' + card.n.toLocaleString() + '</span><span class="sf-lbl">In this group</span></div>' +
+        '<div class="sf-sep"></div>' +
+        '<div class="sf-item"><span class="sf-val">' + card.metro_pct + '%</span><span class="sf-lbl">Metro</span></div>' +
+        '<div class="sf-sep"></div>' +
+        '<div class="sf-item"><span class="sf-val">' + (100-card.metro_pct) + '%</span><span class="sf-lbl">Non-Metro</span></div>' +
+        '<div class="sf-sep"></div>' +
+        '<div class="sf-item"><span class="sf-val">' + card.dom_es + '</span><span class="sf-lbl">Dominant Profile</span></div>' +
+        '<div class="ep-badges">' + epBadges + '</div>' +
+      '</div>' +
+
+      '<div class="analytics-toggle">' +
+        '<button class="atbtn" id="atBtn" onclick="toggleAnalytics()">' +
+          '<span class="at-left"><span class="at-dot"></span><span id="atText">▸ Expand to See Data Details</span></span>' +
+          '<span class="at-arrow">▾</span>' +
+        '</button>' +
+      '</div>' +
+      '<div class="analytics-panel" id="analyticsPanel">' +
+        '<div class="a-inner">' + buildGraphsHTML(card.graphs) + '</div>' +
+      '</div>' +
+
+    '</div>';
+}
+
+// ─── TIPS GENERATOR ───
+function buildTips(card) {
+  var ptype = card.persona_name;
+  var role  = card.role_key;
+  var tipMap = {
+    Pathfinder: [
+      { label:'Career Hook',    text:'Open every module with an explicit career progression link — "completing this puts you on track for ' + (role==='TM'?'ABM':role==='ABM'?'RBM':'the next level') + '". This group is driven by advancement.' },
+      { label:'Daily Rhythm',   text:'They engage daily — push micro-notifications and daily 5-min bite reminders to keep momentum going throughout the week.' },
+      { label:'Recognition',    text:'Badges, completion certificates, and leaderboard visibility amplify Pathfinder motivation more than any other type.' },
+      { label:'Structure',      text:'Offer a clearly mapped learning path with visible progress. Uncertainty about "what comes next" breaks their momentum.' },
+      { label:'Format',         text:'Short videos followed by a 2-question quiz. They want to demonstrate mastery quickly and move on to the next module.' },
+      { label:'Cohort Energy',  text:'Peer benchmarking ("you are in the top 20% of your cohort") is a powerful engagement lever for this group.' },
+    ],
+    Pragmatist: [
+      { label:'Time First',     text:'Respect their constraint above everything. Open with "this module takes 4 minutes". If it runs longer, break it — never surprise them with length.' },
+      { label:'Relevance Lead', text:'Every module must open with "here is exactly how this applies to your daily role". Abstract content will be abandoned in 60 seconds.' },
+      { label:'Mobile-first',   text:'Design for one-thumb scrolling. They learn between meetings and on the road. Test every module on a 3G connection.' },
+      { label:'Offline Push',   text:'Push content proactively before field days. They cannot rely on connectivity at the point of learning.' },
+      { label:'No Padding',     text:'Strip all filler content ruthlessly. No long intros, no repeated summaries. Every second must earn its place.' },
+      { label:'Quick Wins',     text:'End each module with one concrete action they can take today. Immediate applicability is the strongest retention hook.' },
+    ],
+    Inquirer: [
+      { label:'Evidence First', text:'Lead with the clinical evidence, the mechanism, the data. This group has low tolerance for assertion without backing.' },
+      { label:'Depth Layer',    text:'Pair every short video with an optional deep-dive: annotated study, clinical case, or white paper. Let them go further.' },
+      { label:'Why, Not What',  text:'Structure content as "here is what happens and here is why" — not just product features but the underlying science.' },
+      { label:'Case Studies',   text:'Hospital scenario case studies, therapy area evidence reviews, and real-world clinical outcomes are their highest-engagement formats.' },
+      { label:'Reading Format', text:'This group tolerates longer text. Well-structured PDF summaries and downloadable clinical references work alongside video.' },
+      { label:'Credibility',    text:'Use KOL voices, published data, and peer-reviewed references in content. Credibility of the source matters to them deeply.' },
+    ],
+    Navigator: [
+      { label:'Self-Direction', text:'Do not mandate a linear path. Offer a curated library they can navigate by topic, urgency, or interest — they know what they need.' },
+      { label:'Performance Tie',text:'Frame everything around improving measurable outcomes. "This will change your next coaching conversation" lands better than "this builds your skills".' },
+      { label:'Flexibility',    text:'Offer flexible scheduling — on-demand access, pause-and-resume, and content available outside standard hours.' },
+      { label:'No Hand-holding',text:'Skip long onboarding and orientation. Get to the content immediately. They find excessive scaffolding condescending.' },
+      { label:'Expert Access',  text:'Live Q&A sessions with internal or external experts are highly valued — a format that fits their selective, high-quality appetite.' },
+      { label:'Curated Brevity',text:'Curated playlists of 3–4 highly relevant modules beat a catalogue of 40. Curation signals respect for their time and intelligence.' },
+    ],
+    Connector: [
+      { label:'Team Scenarios', text:'Anchor every module to a team-based scenario — "how would you coach your team through this?" Isolation kills their motivation.' },
+      { label:'Peer Cohorts',   text:'Run cohort-based learning waves where groups progress together. Shared timelines and team leaderboards drive their engagement.' },
+      { label:'Coaching Sims',  text:'Role-play simulations and coaching exercises are their highest-value format — especially scenarios with a team member or customer.' },
+      { label:'Discussion Prompts',text:'End every module with a discussion prompt for team WhatsApp groups or team meetings. Learning that spills into the real world sticks.' },
+      { label:'Recognition',    text:'Team-level recognition ("Inhalation team completed the most modules this month") energises them more than individual badges.' },
+      { label:'Social Formats', text:'Group webinars, panel Q&As, and shared case-study reviews are worth the coordination cost for this persona type.' },
+    ],
+  };
+  return tipMap[ptype] || tipMap.Pragmatist;
+}
+
+// ─── GRAPH HTML ───
+function buildGraphsHTML(graphs) {
+  if (!graphs) return '';
+  var colors = { motivation:'#e8c96b', format:'#5b9cf6', style:'#4ade80', challenges:'#f87171', devNeeds:'#c084fc' };
+
+  function rows(data, color, isChall) {
+    if (!data || data.length === 0) return '<div style="color:#4a5880;font-size:12px">No data</div>';
+    var maxV = data.reduce(function(m,d){ return Math.max(m, d[1]); }, 0) || 1;
+    return data.map(function(d, i) {
+      var pct = Math.round(d[1]/maxV*100);
+      var prefix = isChall ? '<span class="g-icon">' + (d[2]||'•') + '</span>' : '<span class="g-num">' + (i+1) + '</span>';
+      var suffix = isChall ? d[1] + '%' : 'Rank ' + (i+1);
+      return '<div class="g-row">' + prefix +
+        '<div class="g-label">' + d[0] + '</div>' +
+        '<div class="g-bar-wrap"><div class="g-bar" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+        '<div class="g-suffix">' + suffix + '</div></div>';
+    }).join('');
+  }
+
+  function card(title, color, data, isChall) {
+    return '<div class="graph-card"><div class="graph-card-title" style="color:' + color + '">' +
+      '<span class="gdot" style="background:' + color + '"></span>' + title + '</div>' +
+      rows(data, color, isChall) + '</div>';
+  }
+
+  return '<div class="graph-grid">' +
+    card('Learning Motivation (Ranked)', colors.motivation, graphs.motivation, false) +
+    card('Preferred Content Format (Ranked)', colors.format, graphs.format, false) +
+    card('Learning Style Preference (Ranked)', colors.style, graphs.style, false) +
+    card('Access &amp; Engagement Challenges', colors.challenges, graphs.challenges, true) +
+    card('Top Professional Development Needs', colors.devNeeds, graphs.devNeeds, false) +
+    card('What Increases Participation', '#e8c96b', graphs.participation, false) +
+  '</div>';
+}
+
+// ─── ANALYTICS TOGGLE ───
+function toggleAnalytics() {
+  var panel = document.getElementById('analyticsPanel');
+  var btn   = document.getElementById('atBtn');
+  var txt   = document.getElementById('atText');
+  if (!panel) return;
+  var isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+  if (txt) txt.textContent = isOpen ? '▸ Expand to See Data Details' : '▾ Collapse Data Details';
+}
+
+init();
+</script>
+</body>
+</html>
